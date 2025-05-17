@@ -2,3 +2,9 @@
 .vs
 bin
 obj
+.idea
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.sln.ide
