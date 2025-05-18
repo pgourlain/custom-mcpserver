@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using System.Text.Json;
+using System.Xml;
 using ModelContextProtocol.Server;
 
 [McpServerToolType]
@@ -23,14 +24,19 @@ public sealed class StorageAccountTools(StorageService saService)
         return JsonSerializer.Serialize(businessModels, StorageContext.Default.ListMonitoringModel);
     }
 
-    // [McpServerTool, Description("Get a truc with specific id.")]
-    // public async Task<string> GetBusinessId([Description("The name of the businessId to get details for")] string businessId)
-    // {
-    //     var businessModel = await saService.GetStorageDataItem(businessId);
-    //     return JsonSerializer.Serialize(businessModel, StorageContext.Default.MonitoringModel);
-    // }
+    [McpServerTool, Description("Help for truc.")]
+    public async Task<string> GetHelp([Description("The name of the businessId to get details for")] string businessId)
+    {
+        var res = JsonSerializer.Serialize(new
+        {
+            businessId = businessId,
+            detail = "This is a test businessId",
+        });
+        return await Task.FromResult(res);
+        //return await saService.GetHelp(businessId);
+    }
     
-    [McpServerTool, Description("Get a list of businessId since a datetime.")]
+    [McpServerTool, Description("Get a list of truc since a datetime.")]
     public async Task<string> GetBusinessIdsSince([Description("datetime to looking for")] DateTimeOffset startTime)
     {
         var businessIds = await saService.GetBusinessIdsSince(startTime);

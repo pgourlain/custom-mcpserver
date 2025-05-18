@@ -5,17 +5,47 @@ using Azure.Data.Tables;
 
 public class StorageService
 {
-    private readonly HttpClient httpClient;
+    //private readonly HttpClient httpClient;
     private readonly TableClient _indexTable;
     private readonly TableClient _dataTable;
 
-    public StorageService(IHttpClientFactory httpClientFactory, TableServiceClient tableServiceClient)
+    public StorageService( TableServiceClient tableServiceClient)
     {
         //can be use to query a specific endpoint
-        httpClient = httpClientFactory.CreateClient();
+        //httpClient = httpClientFactory.CreateClient();
         _indexTable = tableServiceClient.GetTableClient("MonitoringIndex");
         _dataTable = tableServiceClient.GetTableClient("MonitoringTable");
         
+    }
+    
+    public async Task<string> GetHelp(string businessId)
+    {
+        if (string.IsNullOrWhiteSpace(businessId))
+        {
+            return JsonSerializer.Serialize(new{
+                ErrorMessage = "BusinessId is empty"
+            });
+        }
+        if (businessId == "1234")
+        {
+            return JsonSerializer.Serialize(new
+            {
+                businessId = "1234",
+                detail = "This is a test businessId",
+            });
+        }
+        try
+        {
+            var businessModels = await this.GetStorageDataItems(businessId);
+            return JsonSerializer.Serialize(businessModels, StorageContext.Default.ListMonitoringModel);
+        }
+        catch (Exception e)
+        {
+            return JsonSerializer.Serialize(new
+            {
+                ErrorMessage = e.Message
+            });
+        }
     }
     
     public async Task<List<MonitoringModel>> GetStorageDataItems(string businessId, string flowId = "")
@@ -30,10 +60,10 @@ public class StorageService
             {
                 indexes.Add(index);
             }
-            
+
             foreach (var index in indexes)
             {
-                var query =  _dataTable.QueryAsync<StorageDataItem>(entity => entity.PartitionKey == index.RowKey);
+                var query = _dataTable.QueryAsync<StorageDataItem>(entity => entity.PartitionKey == index.RowKey);
                 await foreach (var entity in query)
                 {
                     var m = ToMonitoringModel(entity);
@@ -44,10 +74,10 @@ public class StorageService
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Console.Error.WriteLine(e);
             throw;
         }
-        return await Task.FromResult<List<MonitoringModel>>([]);
+        //return await Task.FromResult<List<MonitoringModel>>([]);
     }
 
     private MonitoringModel ToMonitoringModel(StorageDataItem? entity)
@@ -97,7 +127,7 @@ public class StorageService
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Console.Error.WriteLine(e);
             throw;
         }
     }
