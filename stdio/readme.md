@@ -8,6 +8,7 @@ help urls
 
 to debug
 npx @modelcontextprotocol/inspector dotnet run -v q --no-build
+in vscode : you can use sse mcpserver
 
 in claude :
 {
@@ -23,6 +24,13 @@ in claude :
         }
     }
 }
+to publish into local docker
+ensure 'Use containerd for pulling and storing images' is check (under Features in development)
+from mcp stdio directory
+```shell
+dotnet publish /t:PublishContainer
+```
+
 
 //seems not working
 {
